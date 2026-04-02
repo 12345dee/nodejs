@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = 'devops-node-app'
+        AWS_REGION = 'ap-south-1'            // Mumbai — closest to Bengaluru
+        ECR_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo "Branch: ${env.BRANCH_NAME}"
+            }
+        }
+
+        stage('Install') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                script {
+                    def imageTag = "${env.BRANCH_NAME}-${env.GIT_COMMIT[0..6]}"
+                    sh "docker build -t ${APP_NAME}:${imageTag} ."
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                echo 'ECR push — configured fully in Step 5'
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                echo 'EKS deploy — configured fully in Step 5'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline SUCCESS on branch: ${env.BRANCH_NAME}"
+        }
+        failure {
+            echo "Pipeline FAILED on branch: ${env.BRANCH_NAME}"
+        }
+    }
+}

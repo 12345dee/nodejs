@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-node-app
+  namespace: dev                    # change to stage / prod per environment
+  labels:
+    app: devops-node-app
+    env: dev
+spec:
+  replicas: 1                       # dev=1, stage=2, prod=3+
+  selector:
+    matchLabels:
+      app: devops-node-app
+  template:
+    metadata:
+      labels:
+        app: devops-node-app
+    spec:
+      containers:
+        - name: devops-node-app
+          image: YOUR_ECR_URL/devops-node-app:dev   # updated by Jenkins
+          ports:
+            - containerPort: 3000
+          env:
+            - name: APP_ENV
+              value: "dev"
+            - name: APP_VERSION
+              value: "1.0.0"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"

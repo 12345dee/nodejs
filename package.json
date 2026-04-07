@@ -1,0 +1,16 @@
+{
+  "name": "devops-node-app",
+  "version": "1.0.0",
+  "description": "Node.js app for DevOps CI/CD pipeline",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "keywords": ["devops", "nodejs", "docker", "kubernetes"],
+  "author": "Deepak",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.0.3"
+  }
+}

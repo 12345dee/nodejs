@@ -20,5 +20,5 @@ pipeline {
                 }
             }
         }
-    }
-   
+    } // close stages
+} // close pipeline

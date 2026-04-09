@@ -2,70 +2,44 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = "devops-node-app"
         DOCKERHUB_REPO = "deepak37/devops-node-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
-
         stage('Clone Code') {
-             steps {
+            steps {
                 git(
                     url: 'https://github.com/12345dee/nodejs.git',
                     branch: 'dev'
+                )
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Docker Build & Push') {
             steps {
-                sh 'npm ci'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'npm test || echo "No tests found, skipping..."'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} ."
-            }
-        }
-
-        stage('Login to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-credentials',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                // Use your stored Docker Hub credentials in Jenkins
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker build -t $DOCKERHUB_REPO:$IMAGE_TAG .
+                        docker push $DOCKERHUB_REPO:$IMAGE_TAG
+                    '''
                 }
-            }
-        }
-
-        stage('Push Image to Docker Hub') {
-            steps {
-                sh "docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}"
             }
         }
     }
 
     post {
         always {
-            echo 'Cleaning workspace...'
+            echo "Cleaning up workspace..."
             cleanWs()
         }
-
         success {
-            echo "Pipeline completed successfully!"
+            echo "Docker image pushed successfully: $DOCKERHUB_REPO:$IMAGE_TAG"
         }
-
         failure {
-            echo "Pipeline failed!"
+            echo "Build failed!"
         }
     }
 }

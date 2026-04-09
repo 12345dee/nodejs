@@ -13,7 +13,7 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-cred') {
                         def appImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                         appImage.push()
                     }

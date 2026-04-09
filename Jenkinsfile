@@ -17,14 +17,11 @@ pipeline {
         }
 
         stage('Docker Build & Push') {
-            steps {
-                // Use your stored Docker Hub credentials in Jenkins
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker build -t $DOCKERHUB_REPO:$IMAGE_TAG .
-                        docker push $DOCKERHUB_REPO:$IMAGE_TAG
-                    '''
+                  steps {
+                // Use Jenkins Docker credentials
+                docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
+                    def appImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                    appImage.push()
                 }
             }
         }

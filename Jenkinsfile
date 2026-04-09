@@ -17,11 +17,11 @@ pipeline {
         }
 
         stage('Docker Build & Push') {
-                  steps {
-                // Use Jenkins Docker credentials
-                docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
-                    def appImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
-                    appImage.push()
+             steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-creds') {
+                        def appImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                        appImage.push()
                 }
             }
         }

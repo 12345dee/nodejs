@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         IMAGE_NAME = "deepak37/devops-node-app"
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
     stages {
         stage('Clone Code') {
@@ -10,7 +10,6 @@ pipeline {
                 git branch: 'dev', url: 'https://github.com/12345dee/nodejs.git'
             }
         }
-
         stage('Docker Build & Push') {
             steps {
                 script {
